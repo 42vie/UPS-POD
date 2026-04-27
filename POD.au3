@@ -502,10 +502,8 @@ Func _BuildJsExportPodHtml($tracking)
     "function waitFor(getter,cb){var tries=0;var i=setInterval(function(){" & _
     " tries++; try{var e=getter(); if(e){clearInterval(i); cb(e);} }catch(err){}" & _
     " if(tries>140){clearInterval(i); cb(null);} },250);} " & _
-
     "function norm(s){return (s||'').replace(/\s+/g,' ').trim().toLowerCase();}" & _
     "function esc(s){s=(s||''); return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}" & _
-
     "function byLabel(modal,lbl){" & _
     " var target=norm(lbl);" & _
     " var nodes=modal.querySelectorAll('span,div,dt,strong,p,li');" & _
@@ -519,7 +517,6 @@ Func _BuildJsExportPodHtml($tracking)
     " }" & _
     " return '';" & _
     "}" & _
-
     "function openPOD(){" & _
     " var btn=document.getElementById('stApp_btnProofOfDeliveryonDetails');" & _
     " if(btn){btn.click(); return true;}" & _
@@ -527,11 +524,9 @@ Func _BuildJsExportPodHtml($tracking)
     " if(b){b.click(); return true;}" & _
     " return false;" & _
     "}" & _
-
     "openPOD();" & _
     "waitFor(function(){return document.getElementById('stApp_podModal');}, function(modal){" & _
     " if(!modal){console.log('POD modal not found'); return;}" & _
-
     " var trackingVal = byLabel(modal,'Numéro de suivi') || '" & $tracking & "';" & _
     " var service     = byLabel(modal,'Service');" & _
     " var weight      = byLabel(modal,'Poids');" & _
@@ -541,7 +536,6 @@ Func _BuildJsExportPodHtml($tracking)
     " var deliveredTo = byLabel(modal,'Livré à');" & _
     " var deliveryLoc = byLabel(modal,'Adresse de livraison');" & _
     " var refs        = byLabel(modal,'Numéro(s) de référence');" & _
-
     " var signHtml='Signature non disponible';" & _
     " var signData='';" & _
     " var img=modal.querySelector('img[src^=""data:image""]');" & _
@@ -551,11 +545,9 @@ Func _BuildJsExportPodHtml($tracking)
     "   if(canvas){try{signData=canvas.toDataURL('image/png');}catch(e){signData='';}}" & _
     " }" & _
     " if(signData) signHtml='<img style=""max-width:320px;border:1px solid #999;padding:6px"" src=""'+signData+'"" />';" & _
-
     " var now=new Date();" & _
     " var ts=now.toISOString().slice(0,19).replace(/[:T]/g,'-');" & _
     " var gen=now.toLocaleString('fr-FR');" & _
-
     " var h=[];" & _
     " h.push('<!doctype html><html lang=""fr""><head><meta charset=""utf-8""><title>POD '+esc(trackingVal)+'</title>');" & _
     " h.push('<style>body{font-family:Arial;margin:28px;color:#000;}h1{font-size:20px;margin:0 0 18px;}');" & _
