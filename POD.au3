@@ -271,14 +271,12 @@ Func _BuildJsTrackingToTitle($tracking)
     "function waitFor(getter,cb){var tries=0;var t=setInterval(function(){" & _
     " tries++;try{var v=getter();if(v){clearInterval(t);cb(v);}}catch(e){}" & _
     " if(tries>120){clearInterval(t);cb(null);} },250);}" & _
-
     "function openPOD(){try{" & _
     " var btn=document.getElementById('stApp_btnProofOfDeliveryonDetails');" & _
     " if(btn){btn.click();return true;}" & _
     " var b=[...document.querySelectorAll('button,a,span')].find(x=>norm(x.textContent)==='preuve de livraison');" & _
     " if(b){b.click();return true;}" & _
     "}catch(e){} return false;}" & _
-
     "function byLabel(modal,lbl){" & _
     " var target=norm(lbl);" & _
     " var nodes=modal.querySelectorAll('span,div,dt,strong,p,li');" & _
@@ -292,7 +290,6 @@ Func _BuildJsTrackingToTitle($tracking)
     " }" & _
     " return '';" & _
     "}" & _
-
     "function extractDelivered(modal){" & _
     " var raw=byLabel(modal,'Livré le');" & _
     " var dd='', dt='';" & _
@@ -307,7 +304,6 @@ Func _BuildJsTrackingToTitle($tracking)
     " if(m2) dt='à '+m2[1];" & _
     " return {dd:'',dt:dt};" & _
     "}" & _
-
     "openPOD();" & _
     "waitFor(function(){return document.getElementById('stApp_podModal');}, function(modal){" & _
     " if(!modal){setTitle('Non','','','');return;}" & _
