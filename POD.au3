@@ -54,7 +54,9 @@ Global $btnDownload = GUICtrlCreateButton("Télécharger les POD", 575, 40, 200,
 Global $btnUpload   = GUICtrlCreateButton("Upload EDOC (PRINT)", 785, 40, 180, 32)
 Global $btnExport   = GUICtrlCreateButton("Export Excel", 975, 40, 150, 32)
 
-Global $lv = GUICtrlCreateListView("Traiter|NumJ|Tracking|OK POD ?|Livré (date)|Livré (heure)|ETA|PDF|EDOC", 15, 90, 1170, 520)
+Global $btnAutoTrackDL = GUICtrlCreateButton("Tracking + POD auto (livré seulement)", 15, 77, 340, 28)
+
+Global $lv = GUICtrlCreateListView("Traiter|NumJ|Tracking|OK POD ?|Livré (date)|Livré (heure)|ETA|PDF|EDOC", 15, 112, 1170, 498)
 _GUICtrlListView_SetExtendedListViewStyle($lv, BitOR($LVS_EX_CHECKBOXES, $LVS_EX_GRIDLINES, $LVS_EX_FULLROWSELECT))
 
 Global $log = GUICtrlCreateEdit("", 15, 620, 1170, 80, BitOR($ES_READONLY, $WS_VSCROLL, $ES_AUTOVSCROLL))
@@ -79,6 +81,9 @@ While 1
 
         Case $btnTrack
             _RunTracking()
+
+        Case $btnAutoTrackDL
+            _RunAutoTrackAndDownload()
 
         Case $btnDownload
             _RunDownloadPOD_Only()
@@ -430,6 +435,58 @@ Func _WaitNewestDownloadMatching($prefix, $ext, $timeoutSec)
     WEnd
     Return ""
 EndFunc
+Func _RunAutoTrackAndDownload()
+    If UBound($gRows) = 0 Then Return MsgBox(48, "Info", "Charge d'abord un Excel.")
+    Local $idx = _GetCheckedIndices()
+    If UBound($idx) = 0 Then Return MsgBox(48, "Info", "Coche au moins une ligne.")
+
+    _Log("Tracking + téléchargement auto POD (lignes cochées)...")
+
+    For $k = 0 To UBound($idx) - 1
+        Local $i   = $idx[$k]
+        Local $trk = $gRows[$i][1]
+        Local $numJ = $gRows[$i][0]
+
+        _Log("[" & $trk & "] Tracking...")
+        Local $a = _UPS_Tracking_Read($trk)
+        If IsArray($a) Then
+            $gRows[$i][2] = $a[0]
+            $gRows[$i][3] = $a[1]
+            $gRows[$i][4] = $a[2]
+            $gRows[$i][5] = $a[3]
+        Else
+            $gRows[$i][2] = "Non"
+        EndIf
+        _UpdateRow($i)
+
+        If $gRows[$i][2] <> "Oui" Then
+            $gRows[$i][6] = "IGNORÉ"
+            _UpdateRow($i)
+            _Log("[" & $trk & "] Non livré, ignoré.")
+            ContinueLoop
+        EndIf
+
+        _Log("[" & $trk & "] Livré ! Téléchargement POD...")
+        Local $outDir  = $POD_SOURCE & "\" & _SafeName($numJ)
+        DirCreate($outDir)
+        Local $pdfPath = $outDir & "\POD_" & $trk & ".pdf"
+        $gRows[$i][6] = "En cours..."
+        _UpdateRow($i)
+
+        If _UPS_GeneratePodPdf($trk, $pdfPath) Then
+            $gRows[$i][6] = "PDF OK"
+            _Log("[" & $trk & "] POD téléchargé.")
+        Else
+            $gRows[$i][6] = "KO PDF"
+            _Log("[" & $trk & "] Échec téléchargement POD.")
+        EndIf
+        _UpdateRow($i)
+        Sleep(250)
+    Next
+
+    _Log("Tracking + téléchargement auto terminé.")
+EndFunc
+
 Func _RunDownloadPOD_Only()
     If UBound($gRows) = 0 Then Return MsgBox(48, "Info", "Charge d'abord un Excel.")
     Local $idx = _GetCheckedIndices()
